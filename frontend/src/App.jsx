@@ -12,9 +12,11 @@ function App() {
     fetchCollection();
   }, []);
 
+  const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:8000`;
+
   const fetchCollection = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/collection');
+      const res = await fetch(`${API_URL}/api/collection`);
       const data = await res.json();
       setCollection(data);
     } catch (err) {
@@ -27,7 +29,7 @@ function App() {
     if (!searchQuery) return;
     setIsSearching(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/search?query=${searchQuery}`);
+      const res = await fetch(`${API_URL}/api/search?query=${searchQuery}`);
       const data = await res.json();
       setSearchResults(data.results || []);
     } catch (err) {
@@ -38,7 +40,7 @@ function App() {
 
   const addFragrance = async (fragrance) => {
     try {
-      await fetch('http://localhost:8000/api/collection', {
+      await fetch(`${API_URL}/api/collection`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -49,7 +51,7 @@ function App() {
           longevity: fragrance.longevity,
           projection: fragrance.projection,
           price_tier: fragrance.price_tier,
-          inspiration: "Original"
+          inspiration: fragrance.inspiration || "Original"
         })
       });
       fetchCollection();
@@ -91,6 +93,18 @@ function App() {
                 <div key={i} className="result-card">
                   <h3 className="result-name">{res.name}</h3>
                   <p className="result-brand">{res.brand}</p>
+                  <input 
+                    type="text" 
+                    placeholder="Inspiration / Dupe of..." 
+                    className="search-input"
+                    style={{ width: '100%', marginBottom: '1rem', padding: '0.75rem', fontSize: '0.9rem' }}
+                    value={res.inspiration || ""}
+                    onChange={(e) => {
+                      const newResults = [...searchResults];
+                      newResults[i].inspiration = e.target.value;
+                      setSearchResults(newResults);
+                    }}
+                  />
                   <button onClick={() => addFragrance(res)} className="btn-secondary">
                     <Plus size={18} /> Add to Collection
                   </button>
