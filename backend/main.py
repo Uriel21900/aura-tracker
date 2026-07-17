@@ -218,3 +218,8 @@ def search_dupe_online(name: str):
             return {"inspiration": "Online: Possible clone, but exact designer not detected."}
     except Exception as e:
         return {"inspiration": f"Error: {str(e)}"}
+
+@app.get("/api/dupes")
+def get_all_dupes():
+    dupes_list = [{"clone": k, "original": v.replace("Dupe of ", "")} for k, v in CLONE_TO_ORIGINAL.items()]
+    return {"dupes": dupes_list}
