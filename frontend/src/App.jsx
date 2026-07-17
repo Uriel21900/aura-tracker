@@ -93,18 +93,43 @@ function App() {
                 <div key={i} className="result-card">
                   <h3 className="result-name">{res.name}</h3>
                   <p className="result-brand">{res.brand}</p>
-                  <input 
-                    type="text" 
-                    placeholder="Inspiration / Dupe of..." 
-                    className="search-input"
-                    style={{ width: '100%', marginBottom: '1rem', padding: '0.75rem', fontSize: '0.9rem' }}
-                    value={res.inspiration || ""}
-                    onChange={(e) => {
-                      const newResults = [...searchResults];
-                      newResults[i].inspiration = e.target.value;
-                      setSearchResults(newResults);
-                    }}
-                  />
+                  <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+                    <input 
+                      type="text" 
+                      placeholder="Inspiration / Dupe of..." 
+                      className="search-input"
+                      style={{ flex: 1, padding: '0.75rem', fontSize: '0.9rem' }}
+                      value={res.inspiration || ""}
+                      onChange={(e) => {
+                        const newResults = [...searchResults];
+                        newResults[i].inspiration = e.target.value;
+                        setSearchResults(newResults);
+                      }}
+                    />
+                    <button 
+                      className="btn-secondary" 
+                      style={{ padding: '0.75rem' }}
+                      onClick={async () => {
+                        const newResults = [...searchResults];
+                        newResults[i].inspiration = "Searching online...";
+                        setSearchResults(newResults);
+                        try {
+                          const ddgRes = await fetch(`${API_URL}/api/search-dupe-online?name=${encodeURIComponent(res.name)}`);
+                          const data = await ddgRes.json();
+                          const finalResults = [...searchResults];
+                          finalResults[i].inspiration = data.inspiration;
+                          setSearchResults(finalResults);
+                        } catch (e) {
+                          const finalResults = [...searchResults];
+                          finalResults[i].inspiration = "Failed to search online";
+                          setSearchResults(finalResults);
+                        }
+                      }}
+                      title="Search the live internet for dupes"
+                    >
+                      🌐 Search
+                    </button>
+                  </div>
                   <button onClick={() => addFragrance(res)} className="btn-secondary">
                     <Plus size={18} /> Add to Collection
                   </button>
